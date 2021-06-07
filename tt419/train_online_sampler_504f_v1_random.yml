@@ -5,20 +5,19 @@ model: {
     class: DeeperDeepSEA,
     class_args: {
         sequence_length: 2000,
-        n_targets: 1846,
+        n_targets: 504,
     },
     non_strand_specific: mean
 }
-sampler: !obj:selene_sdk.samplers.IntervalsSampler {
+sampler: !obj:selene_sdk.samplers.RandomPositionsSampler {
     reference_sequence: !obj:selene_sdk.sequences.Genome {
-        input_path: /rds-d5/project/who1000/rds-who1000-wgs10k/user/tt419/Selene_data/selene_ftp_output/male.hg19.fasta,
+        input_path: /rds-d5/project/who1000/rds-who1000-wgs10k/user/tt419/Epigenome/Selene_data/selene_ftp_output/male.hg19.fasta,
         blacklist_regions: hg19
     },
     features: !obj:selene_sdk.utils.load_features_list {
-        input_path: /rds-d5/project/who1000/rds-who1000-wgs10k/user/tt419/Selene_data/selene_ftp_output/distinct_features.txt
+        input_path: /rds-d5/project/who1000/rds-who1000-wgs10k/user/tt419/Epigenome/output_encode_fold/encode_meta1_features.txt 
     },
-    target_path: /rds-d5/project/who1000/rds-who1000-wgs10k/user/tt419/Selene_data/selene_ftp_output/sorted_selene_fullFeatures.bed.gz, 
-    intervals_path: /rds-d5/project/who1000/rds-who1000-wgs10k/user/tt419/Selene_data/selene_ftp_output/TF_intervals.txt,
+    target_path: /rds-d5/project/who1000/rds-who1000-wgs10k/user/tt419/Epigenome/output_encode_fold/encode_meta1_sorted.bed.gz, 
     test_holdout: [chr8, chr9],
     validation_holdout: [chr6, chr7],
     seed: 127,
@@ -32,13 +31,13 @@ train_model: !obj:selene_sdk.TrainModel {
     batch_size: 64,
     max_steps: 960000,
     report_stats_every_n_steps: 1000,
-    n_validation_samples: 16000,
+    n_validation_samples: 5000,
     n_test_samples: 640000,
     use_cuda: True,
     data_parallel: True,
     logging_verbosity: 2
 }
-output_dir: /rds-d5/project/who1000/rds-who1000-wgs10k/user/tt419/Selene_data/selene_ftp_output/logs/online_sampler_outputs_base
+output_dir: /rds-d5/project/who1000/rds-who1000-wgs10k/user/tt419/Epigenome/output_encode_fold/logs/online_sampler_outputs_503_v1_r1
 random_seed: 1447
 create_subdirectory: False
 ...

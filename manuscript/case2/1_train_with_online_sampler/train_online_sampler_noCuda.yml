@@ -31,14 +31,15 @@ sampler: !obj:selene_sdk.samplers.IntervalsSampler {
 train_model: !obj:selene_sdk.TrainModel {
     batch_size: 64,
     max_steps: 960000,
-    report_stats_every_n_steps: 1000,
-    n_validation_samples: 16000,
+    report_stats_every_n_steps: 5000,
+    n_validation_samples: 5000,
     n_test_samples: 640000,
-    use_cuda: True,
+    use_cuda: False,
     data_parallel: True,
-    logging_verbosity: 2
+    logging_verbosity: 2,
+    checkpoint_resume: /rds-d5/project/who1000/rds-who1000-wgs10k/user/tt419/Selene_data/selene_ftp_output/logs/online_sampler_outputs_resume/checkpoint.pth.tar
 }
-output_dir: /rds-d5/project/who1000/rds-who1000-wgs10k/user/tt419/Selene_data/selene_ftp_output/logs/online_sampler_outputs_base
+output_dir: /rds-d5/project/who1000/rds-who1000-wgs10k/user/tt419/Selene_data/selene_ftp_output/logs/online_sampler_outputs_noCuda
 random_seed: 1447
 create_subdirectory: False
 ...
