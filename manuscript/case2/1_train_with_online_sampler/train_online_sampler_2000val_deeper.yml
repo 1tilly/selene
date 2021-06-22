@@ -1,0 +1,44 @@
+---
+ops: [train, evaluate]
+model: {
+    path: /home/tt419/Projects/DeepLearning/selene/manuscript/case2/deeper_deepsea_arch.py,
+    class: DeeperDeepSEA,
+    class_args: {
+        sequence_length: 1000,
+        n_targets: 919,
+    },
+    non_strand_specific: mean
+}
+sampler: !obj:selene_sdk.samplers.IntervalsSampler {
+    reference_sequence: !obj:selene_sdk.sequences.Genome {
+        input_path: /rds-d5/project/who1000/rds-who1000-wgs10k/user/tt419/Epigenome/Selene_data/selene_ftp_output/male.hg19.fasta,
+        blacklist_regions: hg19
+    },
+    features: !obj:selene_sdk.utils.load_features_list {
+        input_path: ~/Projects/DeepLearning/DeepSea_data/chromatin_profiles/distinct_features.txt
+    },
+    target_path: ~/Projects/DeepLearning/DeepSea_data/chromatin_profiles/sorted_deepsea_data.bed.gz, 
+    intervals_path: ~/Projects/DeepLearning/DeepSea_data/chromatin_profiles/TF_intervals.txt,
+    test_holdout: [chr8, chr9],
+    validation_holdout: [chr6, chr7],
+    seed: 127,
+    sequence_length: 1000,
+    center_bin_to_predict: 200,
+    feature_thresholds: 0.5,
+    mode: train,
+    save_datasets: [train, test, validate]
+}
+train_model: !obj:selene_sdk.TrainModel {
+    batch_size: 64,
+    max_steps: 960000,
+    report_stats_every_n_steps: 2000,
+    n_validation_samples: 5000,
+    n_test_samples: 640000,
+    use_cuda: False,
+    data_parallel: True,
+    logging_verbosity: 2,
+}
+output_dir: /home/tt419/Projects/DeepLearning/selene/manuscript/case2/online_sampler_outputs_deeper_2000val_16hr
+random_seed: 1447
+create_subdirectory: False
+...

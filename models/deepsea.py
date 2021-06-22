@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 
 
-class DeepSEA(nn.Module):
+class DeepSEA_selene(nn.Module):
     def __init__(self, sequence_length, n_genomic_features):
         """
         Parameters
@@ -14,7 +14,7 @@ class DeepSEA(nn.Module):
         sequence_length : int
         n_genomic_features : int
         """
-        super(DeepSEA, self).__init__()
+        super(DeepSEA_selene, self).__init__()
         conv_kernel_size = 8
         pool_kernel_size = 4
 

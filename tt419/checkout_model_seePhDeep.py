@@ -47,9 +47,10 @@ features_1846 = load_features_list("/rds-d5/project/who1000/rds-who1000-wgs10k/u
 
 # %%
 # ToDo: This path should be adjusted to make clear, that it is the file for the FYR model/original deepsea (per ln -s)
-train_919 = "/home/tt419/Projects/DeepLearning/DeepSea_data/deepsea_train/train.mat"
-test_919 = "/home/tt419/Projects/DeepLearning/DeepSea_data/deepsea_train/test.mat"
-valid_919 = "/home/tt419/Projects/DeepLearning/DeepSea_data/deepsea_train/valid.mat"
+base_path_919 = "/home/tt419/Projects/DeepLearning/DeepSea_data/deepsea_train/"
+train_919 = base_path_919 + "train.mat"
+test_919 = base_path_919 + "test.mat"
+valid_919 = base_path_919 + "valid.mat"
 
 # ToDo: This path should be adjusted to make clear, that it is the file for the 504 features
 base_path_504 = "/rds-d5/project/who1000/rds-who1000-wgs10k/user/tt419/Epigenome/output_encode_fold/"
@@ -139,38 +140,67 @@ model_919.summary()
 # # Load test data
 # This data can be used for prediction and put into the "visualize_roc_curves" function of the utils/performance_metrics.py  
 
-# %%
-dm = DataManager()
-val_x, val_y = dm.read_val_data()
-
 # %% [markdown]
 # ### Region selection
 # It is to be debated, whether the models should all be benchmarked on the same regions, or just on the same chromosomes (usually 6 & 7 or 8 & 9)
 
 # %%
 from selene_sdk.sequences import Genome
-from selene_sdk.samplers import OnlineSampler
+from selene_sdk.samplers import RandomPositionsSampler
 ref_hg19_seq = Genome(ref_hg19)
-os_504 = OnlineSampler(ref_hg19_seq, data_504, features_504, 
+rps_504 = RandomPositionsSampler(ref_hg19_seq, data_504, features_504, 
                         sequence_length=2000, mode="validate", 
-                        save_datasets=["validate"], output_dir=[base_path_504+"validation_set_504"])
+                        save_datasets=["validate"], output_dir=base_path_504+"validation_set_504")
 
-os_1846 = OnlineSampler(ref_hg19_seq, data_1846, features_1846, 
+rps_1846 = RandomPositionsSampler(ref_hg19_seq, data_1846, features_1846, 
                         sequence_length=2000, mode="validate", 
-                        save_datasets=["validate"], output_dir=[base_path_1846+"validation_set_1846"])
+                        save_datasets=["validate"], output_dir=base_path_1846+"validation_set_1846")
 
+# dm = DataManager()
+# val_x, val_y = dm.read_val_data()
+from selene_sdk.samplers.file_samplers import MatFileSampler
+
+mfs_valid_919 = MatFileSampler(valid_919, "validxdata", "validdata")
 
 # %% [markdown]
 # ### Sampler ready, now the prediction begins that will be fed into the performance_metrics.py
 # The code for the selene-based models is using parts of the "evaluate_model.py" for generating the predictions from the online sampler
 
 # %%
+# Predict the validation data with the PhDeep model and pass the predictions to the visualize_roc_curves and visualize_precision_recall_curves
+
+from selene_sdk.samplers import MultiFileSampler
+from PhDeep.models.deepsea_selene.model import DeepSEA
+
+weights_919 = model_919.get_weights()
+selene_919 = DeepSEA(1000, 919)
+
+layer_map = {
+    "conv1" : [model_919.get_layer("conv1d_1"),selene_919.conv_net[0]],
+    "conv2" : [model_919.get_layer("conv1d_2"),selene_919.conv_net[4]],
+    "conv3" : [model_919.get_layer("conv1d_3"),selene_919.conv_net[8]],
+    "dense1" : [model_919.get_layer("dense_1"),selene_919.classifier[0]],
+    "dense2" : [model_919.get_layer("dense_2"),selene_919.classifier[2]]  
+}
+
+layer_order = ["conv1", "conv2", "conv3", "dense1", "dense2"]
+
+# %%
+
+for layer_key in layer_order:
+    layers = layer_map[layer_key]
+    layers[1].weight.data=torch.from_numpy(np.transpose(layers[0].weights[0].numpy()))
+    layers[1].bias.data=torch.from_numpy(layers[0].weights[1].numpy())
+
+selene_919_model_path = base_path_919+"fyr_to_selene.pth.tar"
+import os.path
+if not os.path.isfile(selene_919_model_path):
+    torch.save(selene_919.state_dict(), selene_919_model_path)
+# %%
 from torch.nn import BCELoss
 from selene_sdk.evaluate_model import EvaluateModel
 
-eval_504 = EvaluateModel(model_arch_504, BCELoss(), os_504, features_504, model_path_504, output_dir=base_path_504+"eval_504" batch_size=batch_size, n_test_samples=n_valid_samples, use_cuda=True)
-eval_1846 = EvaluateModel(model_arch_1846, BCELoss(), os_1846, features_1846, model_path_1846, output_dir=base_path_1846+"eval_1846" batch_size=batch_size, n_test_samples=n_valid_samples, use_cuda=True)
-
-
-# %%
+eval_919 = EvaluateModel(selene_919, BCELoss(), mfs_valid_919, features_919, selene_919_model_path, output_dir=base_path_919+"eval_919", batch_size=batch_size, n_test_samples=n_valid_samples, use_cuda=True)
+eval_504 = EvaluateModel(model_arch_504, BCELoss(), rps_504, features_504, model_path_504, output_dir=base_path_504+"eval_504", batch_size=batch_size, n_test_samples=n_valid_samples, use_cuda=True)
+eval_1846 = EvaluateModel(model_arch_1846, BCELoss(), rps_1846, features_1846, model_path_1846, output_dir=base_path_1846+"eval_1846", batch_size=batch_size, n_test_samples=n_valid_samples, use_cuda=True)
 
