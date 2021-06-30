@@ -19,6 +19,8 @@ from .utils import initialize_logger
 from .utils import load_model_from_state_dict
 from .utils import PerformanceMetrics
 
+import wandb
+
 logger = logging.getLogger("selene")
 
 
@@ -80,6 +82,8 @@ class TrainModel(object):
         `output_dir`.
     output_dir : str
         The output directory to save model checkpoints and logs in.
+    
+
     save_checkpoint_every_n_steps : int or None, optional
         Default is 1000. If None, set to the same value as
         `report_stats_every_n_steps`
@@ -178,6 +182,7 @@ class TrainModel(object):
                  max_steps,
                  report_stats_every_n_steps,
                  output_dir,
+                 wandb_args,
                  save_checkpoint_every_n_steps=1000,
                  save_new_checkpoints_after_n_steps=None,
                  report_gt_feature_n_positives=10,
@@ -194,6 +199,9 @@ class TrainModel(object):
         """
         Constructs a new `TrainModel` object.
         """
+        wandb.init()
+
+
         self.model = model
         self.sampler = data_sampler
         self.criterion = loss_criterion
@@ -289,6 +297,7 @@ class TrainModel(object):
         self._train_logger = _metrics_logger(
                 "{0}.train".format(__name__), self.output_dir)
         self._train_logger.info("loss")
+        wandb.watch(self.model,log="all" ,log_freq=100)
         if self._use_scheduler:
             self.scheduler = ReduceLROnPlateau(
                 self.optimizer,
@@ -456,6 +465,7 @@ class TrainModel(object):
         t_f = time()
 
         self._time_per_step.append(t_f - t_i)
+        
         if self.step and self.step % self.nth_step_report_stats == 0:
             logger.info(("[STEP {0}] average number "
                          "of steps per second: {1:.1f}").format(
@@ -464,6 +474,7 @@ class TrainModel(object):
             logger.info("training loss: {0}".format(np.average(self._train_loss)))
             self._time_per_step = []
             self._train_loss = []
+
 
 
     def _evaluate_on_data(self, data_in_batches):
