@@ -36,9 +36,10 @@ train_model: !obj:selene_sdk.TrainModel {
     n_test_samples: 640000,
     use_cuda: True,
     data_parallel: True,
-    logging_verbosity: 2
+    logging_verbosity: 2,
+    checkpoint_resume: /rds-d5/user/tt419/hpc-work/data-storage/PhDeep_logs/DDS_ENCv1_2000/logs/online_sampler_outputs_504_v1_interval/best_model.pth.tar
 }
-output_dir: /rds-d5/user/tt419/hpc-work/data-storage/PhDeep_logs/DDS_ENCv1_2000/logs/online_sampler_outputs_504_v1_interval
+output_dir: /rds-d5/user/tt419/hpc-work/data-storage/PhDeep_logs/DDS_ENCv1_2000/logs/online_sampler_outputs_504_v1_interval_resume
 random_seed: 1447
 create_subdirectory: False
 ...
