@@ -182,7 +182,6 @@ class TrainModel(object):
                  max_steps,
                  report_stats_every_n_steps,
                  output_dir,
-                 wandb_args,
                  save_checkpoint_every_n_steps=1000,
                  save_new_checkpoints_after_n_steps=None,
                  report_gt_feature_n_positives=10,
@@ -201,8 +200,9 @@ class TrainModel(object):
         """
         wandb.init()
 
-
         self.model = model
+        wandb.watch(self.model, log="all" ,log_freq=100)
+
         self.sampler = data_sampler
         self.criterion = loss_criterion
         self.optimizer = optimizer_class(
