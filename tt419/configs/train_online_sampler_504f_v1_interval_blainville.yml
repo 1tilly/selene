@@ -1,0 +1,44 @@
+---
+ops: [train, evaluate]
+model: {
+    path: /home/tt419/Projects/DeepLearning/PhDeep/models/deepsea_blainville/model.py,
+    class: BlainvilleDeepSEA,
+    class_args: {
+        sequence_length: 2000,
+        n_targets: 504,
+    },
+    non_strand_specific: mean
+}
+sampler: !obj:selene_sdk.samplers.IntervalsSampler {
+    reference_sequence: !obj:selene_sdk.sequences.Genome {
+        input_path: /rds-d5/user/tt419/hpc-work/data-storage/Epigenome/male.hg19.fasta,
+        blacklist_regions: hg19
+    },
+    features: !obj:selene_sdk.utils.load_features_list {
+        input_path: /rds-d5/user/tt419/hpc-work/data-storage/Epigenome/ENCODE_v1_sel_BED/encode_meta1_features.txt
+    },
+    target_path: /rds-d5/project/who1000/rds-who1000-wgs10k/user/tt419/Epigenome/ENCODE_v1_sel_BED/encode_meta1_sorted_withChrPrefix.bed.gz, 
+    intervals_path: /rds-d5/project/who1000/rds-who1000-wgs10k/user/tt419/Epigenome/ENCODE_v1_sel_BED/TF_intervals_chrPrefix.txt,
+    test_holdout: [chr8],
+    validation_holdout: [chr9],
+    seed: 127,
+    sequence_length: 2000,
+    center_bin_to_predict: 200,
+    feature_thresholds: 0.5,
+    mode: train,
+    save_datasets: [train, test, validate]
+}
+train_model: !obj:selene_sdk.TrainModel {
+    batch_size: 64,
+    max_steps: 960000,
+    report_stats_every_n_steps: 1000,
+    n_validation_samples: 5000,
+    n_test_samples: 640000,
+    use_cuda: True,
+    data_parallel: True,
+    logging_verbosity: 2
+}
+output_dir: /rds-d5/user/tt419/hpc-work/data-storage/PhDeep_logs/DDS_ENCv1_2000/logs/online_sampler_outputs_504_v1_interval_blainville
+random_seed: 1447
+create_subdirectory: False
+...
