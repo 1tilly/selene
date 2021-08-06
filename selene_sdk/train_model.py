@@ -12,7 +12,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, f1_score, matthews_corrcoef
 from sklearn.metrics import average_precision_score
 
 from .utils import initialize_logger
@@ -193,7 +193,9 @@ class TrainModel(object):
                  logging_verbosity=2,
                  checkpoint_resume=None,
                  metrics=dict(roc_auc=roc_auc_score,
-                              average_precision=average_precision_score),
+                              average_precision=average_precision_score,
+                              f1=f1_score,
+                              mcc=matthews_corrcoef),
                  use_scheduler=True):
         """
         Constructs a new `TrainModel` object.
@@ -471,6 +473,7 @@ class TrainModel(object):
                          "of steps per second: {1:.1f}").format(
                 self.step, 1. / np.average(self._time_per_step)))
             self._train_logger.info(np.average(self._train_loss))
+            wandb.log({"loss": self._train_loss})
             logger.info("training loss: {0}".format(np.average(self._train_loss)))
             self._time_per_step = []
             self._train_loss = []
