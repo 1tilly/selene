@@ -27,7 +27,7 @@ mkdir -p $logpath
 logfile="${logpath}bash_${SLURM_JOB_ID}_${SLURM_JOB_NAME}.out"
 
 
-scontrol show -dd job $SLURM_JOB_ID
+
 
 ​
 ​

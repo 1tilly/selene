@@ -11,7 +11,7 @@ model: {
 }
 sampler: !obj:selene_sdk.samplers.IntervalsSampler {
     reference_sequence: !obj:selene_sdk.sequences.Genome {
-        input_path: /rds-d5/user/tt419/hpc-work/data-storage/Epigenome/male.hg19.fasta,
+        input_path: /rds-d5/user/tt419/hpc-work/data-storage/Epigenome/refseq/male.hg19.fasta,
         blacklist_regions: hg19
     },
     features: !obj:selene_sdk.utils.load_features_list {

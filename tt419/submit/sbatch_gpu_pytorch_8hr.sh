@@ -29,14 +29,13 @@ logfile="${logpath}bash_${SLURM_JOB_ID}_${SLURM_JOB_NAME}.out"
 
 scontrol show -dd job $SLURM_JOB_ID
 
-​
-​
+
 echo "Writing to ${logfile}"
 echo -e "JobID: $SLURM_JOB_ID\n======"
 echo "Time: `date`"
 echo "Running on master node: `hostname`"
 echo "Current directory: `pwd`"
-​
+
 echo -e "\nExecuting command:\n==================\n $0\n"
 
 echo "~/.conda/envs/phdeep/bin/python3 called with: $1 ${@:2}"

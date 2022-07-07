@@ -200,10 +200,10 @@ class TrainModel(object):
         """
         Constructs a new `TrainModel` object.
         """
-        wandb.init()
+        wandb.init(config={"batch_size": batch_size, "max_steps":max_steps}, tags='TEST_Blainville6k')
 
         self.model = model
-        wandb.watch(self.model, log="all" ,log_freq=100)
+        wandb.watch(self.model, log="all" ,log_freq=report_stats_every_n_steps)
 
         self.sampler = data_sampler
         self.criterion = loss_criterion
@@ -299,7 +299,7 @@ class TrainModel(object):
         self._train_logger = _metrics_logger(
                 "{0}.train".format(__name__), self.output_dir)
         self._train_logger.info("loss")
-        wandb.watch(self.model,log="all" ,log_freq=100)
+        
         if self._use_scheduler:
             self.scheduler = ReduceLROnPlateau(
                 self.optimizer,
@@ -474,6 +474,9 @@ class TrainModel(object):
                 self.step, 1. / np.average(self._time_per_step)))
             self._train_logger.info(np.average(self._train_loss))
             wandb.log({"loss": self._train_loss})
+            wandb.log({"minloss": min(self._train_loss)})
+            wandb.log({"avgloss": np.average(self._train_loss)})
+
             logger.info("training loss: {0}".format(np.average(self._train_loss)))
             self._time_per_step = []
             self._train_loss = []
@@ -545,8 +548,10 @@ class TrainModel(object):
         for k in sorted(self._validation_metrics.metrics.keys()):
             if k in valid_scores and valid_scores[k]:
                 to_log.append(str(valid_scores[k]))
+                wandb.log({k:str(valid_scores[k])})
             else:
                 to_log.append("NA")
+        
         self._validation_logger.info("\t".join(to_log))
 
         # scheduler update
@@ -596,6 +601,7 @@ class TrainModel(object):
             self.output_dir, "test_performance.txt")
         feature_scores_dict = self._test_metrics.write_feature_scores_to_file(
             test_performance)
+        wandb.log(feature_scores_dict)
 
         average_scores["loss"] = average_loss
 
