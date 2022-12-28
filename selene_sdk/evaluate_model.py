@@ -8,7 +8,7 @@ import warnings
 import numpy as np
 import torch
 import torch.nn as nn
-from sklearn.metrics import average_precision_score, roc_auc_score
+from sklearn.metrics import average_precision_score, roc_auc_score, f1_score, matthews_corrcoef
 
 from .sequences import Genome
 from .utils import (PerformanceMetrics, _is_lua_trained_model,
@@ -104,7 +104,9 @@ class EvaluateModel(object):
                  data_parallel=False,
                  use_features_ord=None,
                  metrics=dict(roc_auc=roc_auc_score,
-                              average_precision=average_precision_score)):
+                              average_precision=average_precision_score,
+                              f1=f1_score,
+                              mcc=matthews_corrcoef)):
         self.criterion = criterion
 
         trained_model = torch.load(

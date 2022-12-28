@@ -1,6 +1,7 @@
 # Repo-specific
 configs/
 output/
+wandb/
 *.out
 *.err
 *.sh

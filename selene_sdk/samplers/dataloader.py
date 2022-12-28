@@ -104,7 +104,7 @@ class SamplerDataLoader(DataLoader):
     """
     def __init__(self,
                  sampler,
-                 num_workers=1,
+                 num_workers=4, #adjusted by tt419 from 1 to 4
                  batch_size=1,
                  seed=436):
         def worker_init_fn(worker_id):
@@ -290,7 +290,7 @@ class H5DataLoader(DataLoader):
     def __init__(self,
                  filepath,
                  in_memory=False,
-                 num_workers=1,
+                 num_workers=4, #adjusted by tt419 from 1 to 4
                  use_subset=None,
                  batch_size=1,
                  shuffle=True,

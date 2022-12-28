@@ -548,7 +548,7 @@ class TrainModel(object):
         for k in sorted(self._validation_metrics.metrics.keys()):
             if k in valid_scores and valid_scores[k]:
                 to_log.append(str(valid_scores[k]))
-                wandb.log({k:str(valid_scores[k])})
+                wandb.log({k:float(valid_scores[k])})
             else:
                 to_log.append("NA")
         
@@ -570,6 +570,7 @@ class TrainModel(object):
                 "optimizer": self.optimizer.state_dict()}, True)
             logger.debug("Updating `best_model.pth.tar`")
         logger.info("validation loss: {0}".format(validation_loss))
+        wandb.log({"val_loss":validation_loss})
 
     def evaluate(self):
         """
@@ -596,12 +597,12 @@ class TrainModel(object):
 
         for name, score in average_scores.items():
             logger.info("test {0}: {1}".format(name, score))
-
+            wandb.log({name:score)
         test_performance = os.path.join(
             self.output_dir, "test_performance.txt")
         feature_scores_dict = self._test_metrics.write_feature_scores_to_file(
             test_performance)
-        wandb.log(feature_scores_dict)
+
 
         average_scores["loss"] = average_loss
 

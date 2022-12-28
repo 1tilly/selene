@@ -11,6 +11,8 @@ from sklearn.metrics import average_precision_score
 from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import roc_curve
+from sklearn.metrics import f1_score, matthews_corrcoef # addition by tt419 Tobias Tilly
+ 
 from scipy.stats import rankdata
 
 
@@ -317,7 +319,9 @@ class PerformanceMetrics(object):
                  get_feature_from_index_fn,
                  report_gt_feature_n_positives=10,
                  metrics=dict(roc_auc=roc_auc_score,
-                              average_precision=average_precision_score)):
+                              average_precision=average_precision_score,
+                              f1=f1_score, # added by tt419
+                              mcc=matthews_corrcoef)): # added by tt419
         """
         Creates a new object of the `PerformanceMetrics` class.
         """
