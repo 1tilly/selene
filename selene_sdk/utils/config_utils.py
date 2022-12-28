@@ -8,7 +8,9 @@ import importlib
 import sys
 from time import strftime
 import types
+import random
 
+import numpy as np
 import torch
 
 from . import _is_lua_trained_model
@@ -179,6 +181,8 @@ def execute(operations, configs, output_dir):
                                   optimizer_kwargs=optim_kwargs)
             if output_dir is not None:
                 train_model_info.bind(output_dir=output_dir)
+            if "random_seed" in configs:
+                train_model_info.bind(deterministic=True)
 
             train_model = instantiate(train_model_info)
             # TODO: will find a better way to handle this in the future
@@ -335,8 +339,11 @@ def parse_configs_and_run(configs,
 
     if "random_seed" in configs:
         seed = configs["random_seed"]
+        random.seed(seed)
+        np.random.seed(seed)
         torch.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
+        print("Setting random seed = {0}".format(seed))
     else:
         print("Warning: no random seed specified in config file. "
               "Using a random seed ensures results are reproducible.")

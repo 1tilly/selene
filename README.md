@@ -4,13 +4,15 @@
 
 Selene is a Python library and command line interface for training deep neural networks from biological sequence data such as genomes.
 
+Please see our [release notes](./RELEASE_NOTES.md) for the latest updates to Selene.
+
 ## Installation
 
 We recommend using Selene with Python 3.6 or above. 
 Package installation should only take a few minutes (less than 10 minutes, typically ~2-3 minutes) with any of these methods (conda, pip, source). 
 
 **First, install [PyTorch](https://pytorch.org/get-started/locally/).** If you have an NVIDIA GPU, install a version of PyTorch that supports it--Selene will run much faster with a discrete GPU. 
-The library is currently compatible with PyTorch versions between 0.4.1 and 1.4.0.
+The library is currently compatible with PyTorch versions between 0.4.1 and 1.9.
 We will continue to update Selene to be compatible with the latest version of PyTorch.
 
 ### Installing selene with [Anaconda](https://www.anaconda.com/download/) (for Linux):
